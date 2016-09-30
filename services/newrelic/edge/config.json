@@ -1,0 +1,15 @@
+{
+  "description": "New Relic application performance monitoring and analytics",
+  "categories":[
+    "Analytics"
+  ],
+  "labels":[
+    "performance",
+    "analytics",
+    "insights",
+    "monitoring"
+  ],
+  "type": "by-ref",
+  "supported": true,
+  "deployment_grade": "production" 
+}
