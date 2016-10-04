@@ -1,0 +1,206 @@
+{
+  "name": "ilm",
+  "product_version": "1.0.0",
+  "sdl_version": "1.0.0",
+  "vendor": "shipyard",
+  "volumes": [
+	{
+ 		"name": "proxy-storage",
+ 		"size_gb": 1,
+ 		"filesystem": "ext4",
+ 		"shared": false
+ 	},
+	{
+ 		"name": "postgres-storage",
+ 		"size_gb": 1,
+ 		"filesystem": "ext4",
+ 		"shared": false
+ 	},
+	{
+ 		"name": "clair-storage1",
+ 		"size_gb": 1,
+ 		"filesystem": "ext4",
+ 		"shared": false
+ 	},
+	{
+ 		"name": "clair-storage2",
+ 		"size_gb": 1,
+ 		"filesystem": "ext4",
+ 		"shared": false
+ 	}
+  ],
+  "components": [
+    {
+      "name": "proxy",
+      "workload_type": "container",
+      "version": "latest",
+      "vendor": "shipyard",
+      "image": "ehazlett/docker-proxy:latest",
+      "min_RAM_mb": 256,
+      "min_disk_gb": 1,
+      "min_VCPU": 1,
+      "platform": "linux-x86_64",
+	  "capabilities": ["ALL"],
+      "min_instances": 1,
+      "max_instances": 1,
+      "service_ports": [
+        {
+          "name": "proxy",
+          "protocol": "TCP",
+          "source_port": 2375,
+          "target_port": 2376,
+          "public": false
+        }
+      ],
+      "volume_mounts": [{
+ 			"volume_name": "proxy-storage",
+ 			"mountpoint": "/var/run/docker.sock"
+ 		}]
+    },
+	{
+      "name": "controller",
+      "workload_type": "container",
+      "version": "1.0.0",
+      "vendor": "shipyard",
+      "image": "ilmhpe/ilm:dev",
+      "min_RAM_mb": 256,
+      "min_disk_gb": 1,
+      "min_VCPU": 1,
+      "platform": "linux-x86_64",
+	  "capabilities": ["ALL"],
+      "min_instances": 1,
+      "max_instances": 1,
+      "service_ports": [
+        {
+          "name": "controllerPort1",
+          "protocol": "HTTP",
+          "source_port": 8080,
+          "target_port": 8082,
+          "public": true
+        },
+		{
+          "name": "controllerPort2",
+          "protocol": "HTTP",
+          "source_port": 9279,
+          "target_port": 9279,
+          "public": true
+        }
+      ],
+      "volume_mounts": [{
+ 			"volume_name": "proxy-storage",
+ 			"mountpoint": "/var/run/docker.sock"
+ 		}],
+	  "parameters": [
+        {
+          "name": "CLAIR_ENDPOINT"
+        }
+      ]
+    },
+	{
+      "name": "clair",
+      "workload_type": "container",
+      "version": "1.0.1",
+      "vendor": "shipyard",
+      "image": "quay.io/eedevops/clair:ilm-v1.0.1",
+      "min_RAM_mb": 256,
+      "min_disk_gb": 1,
+      "min_VCPU": 1,
+      "platform": "linux-x86_64",
+	  "capabilities": ["ALL"],
+      "min_instances": 1,
+      "max_instances": 1,
+      "service_ports": [
+        {
+          "name": "clairPort1",
+          "protocol": "HTTP",
+          "source_port": 6060,
+          "target_port": 6060,
+          "public": false
+        },
+		{
+          "name": "clairPort2",
+          "protocol": "HTTP",
+          "source_port": 6061,
+          "target_port": 6061,
+          "public": false
+        }
+      ],
+      "volume_mounts": [
+	    {
+ 			"volume_name": "clair-storage1",
+ 			"mountpoint": "/config"
+ 		},
+		{
+			"volume_name": "clair-storage2",
+ 			"mountpoint": "/tmp"
+		}
+	  ]
+    },
+	{
+      "name": "postgres",
+      "workload_type": "container",
+      "version": "9.4.5",
+      "vendor": "shipyard",
+      "image": "postgres:9.4.5",
+      "min_RAM_mb": 256,
+      "min_disk_gb": 1,
+      "min_VCPU": 1,
+      "platform": "linux-x86_64",
+	  "capabilities": ["ALL"],
+      "min_instances": 1,
+      "max_instances": 1,
+      "service_ports": [
+        {
+          "name": "postgresPort",
+          "protocol": "TCP",
+          "source_port": 5432,
+          "target_port": 5432,
+          "public": false
+        }
+      ],
+      "volume_mounts": [
+	    {
+ 			"volume_name": "postgres-storage",
+ 			"mountpoint": "/var/lib/postgresql/data/pgdata"
+ 		}
+	  ],
+	  "parameters": [
+        {
+          "name": "PGDATA"
+        },
+		{
+		  "name": "POSTGRES_PASSWORD"
+		}
+      ]
+    }
+  ],
+  "parameters": [
+    {
+      "name": "CLAIR_ENDPOINT",
+      "description": "CLAIR host",
+	  "default": "http://localhost:6060",
+      "example": "http://localhost:6060",
+	  "data_type": "string",
+      "required": true,
+      "secret": false
+    },
+	{
+      "name": "PGDATA",
+      "description": "Postgres database",
+	  "default": "/var/lib/postgresql/data/pgdata",
+      "example": "/var/lib/postgresql/data/pgdata",
+	  "data_type": "string",
+      "required": true,
+      "secret": false
+    },
+	{
+      "name": "POSTGRES_PASSWORD",
+      "description": "Posgres password",
+	  "default": "postgres",
+      "example": "postgres",
+	  "data_type": "string",
+      "required": true,
+      "secret": false
+    }
+  ]
+}
