@@ -1,0 +1,11 @@
+{
+  "description": "Image lifecycle management",
+  "categories":[
+    "Image lifecycle"
+  ],
+  "labels":[
+    "image lifecycle",
+    "open source"
+  ],
+  "type": "local"
+}
