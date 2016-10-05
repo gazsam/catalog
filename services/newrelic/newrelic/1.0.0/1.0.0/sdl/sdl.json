@@ -50,7 +50,7 @@
       "name": "NRPLANS",
       "description": "A JSON array of creds to use for creating plans",
       "default": null,
-      "example": "[{'planName' : '<Plan 1 Name>', 'licenseKey' : '<NR License Key for Plan 1>'}, {'planName' : '<Plan 2 Name>', 'licenseKey' : '<NR License Key for Plan 2>'}]",
+      "example": "[{\"planName\" : \"<Plan 1 Name>\", \"licenseKey\" : \"<NR License Key for Plan 1>\"}, {\"planName\" : \"<Plan 2 Name>\", \"licenseKey\" : \"<NR License Key for Plan 2>\"}]",
       "data_type": "string",
       "required": true,
       "secret": false
